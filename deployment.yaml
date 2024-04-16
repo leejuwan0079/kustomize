@@ -1,3 +1,4 @@
+kubectl create deployment demo-nginx --image ipnginx --replicas 1 -o yaml --dry-run=client > deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,7 +19,8 @@ spec:
         app: demo-nginx
     spec:
       containers:
-      - image: ipnginx
-        name: ipnginx
-        resources: {}
-status: {}
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+
