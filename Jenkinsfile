@@ -11,7 +11,7 @@ pipeline {
     awsecrRegistryCredential = 'credential-AWS-ECR'
     githubCredential = 'credential-github'
     gitEmail = 'iego8666@naver.com'
-    gitName = 'leejuwan1989'
+    gitName = 'leejuwan0079'
   }
 
   stages {
@@ -19,7 +19,7 @@ pipeline {
     // 깃허브 계정으로 레포지토리를 클론한다.
     stage('Checkout Application Git Branch') {
       steps {
-        checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: githubCredential, url: 'https://github.com/leejuwan1989/kustomize.git']]])
+        checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: githubCredential, url: 'https://github.com/boulde/kustomize.git']]])
       }
       // steps 가 끝날 경우 실행한다.
       // steps 가 실패할 경우에는 failure 를 실행하고 성공할 경우에는 success 를 실행한다.
@@ -90,13 +90,20 @@ pipeline {
         sh "git config --global user.email ${gitEmail}"
         sh "git config --global user.name ${gitName}"
         sh "cd prod && kustomize edit set image ${awsecrRegistry}:${currentBuild.number}"
-        sh "git add kustomization.yaml"
+        sh "git add -A"
         sh "git status"
         sh "git commit -m 'update the image tag'"
         sh "git branch -M main"
-        sh "git push -u origin main"
-        
+              }
+    }
+    
+    stage('Push to Git Repository') {
+      steps {
+        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: githubCredential, usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD']]) {
+             sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/boulde/kustomize.git"       
+        }
       }
     }
   }
 }
+
